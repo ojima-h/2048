@@ -1,4 +1,26 @@
 (function(global) {
+  var running = false;
+
+  var setup = function() {
+    var text_start = 'Start Auto Solving!';
+    var text_stop  = 'Stop!';
+
+    var $auto_button = $('<div><a class="auto-button">' + text_start + '</a></div>');
+
+    $auto_button.on('click', function (e) {
+      if (running) {
+        $auto_button.find('a').text(text_start);
+        running = false;
+      } else {
+        $auto_button.find('a').text(text_stop);
+        running = true;
+        loop();
+      }
+    });
+
+    $auto_button.insertAfter('.above-game');
+  };
+
   var loadGrid = function(){
     var cells = global.gameManager.grid.cells;
 
@@ -17,28 +39,15 @@
     var solver = new ai.Solver(mtx);
     var dir    = solver.solve();
 
-    console.log(dir);
-
     ai.Controller.move(dir);
   }
 
   var loop = function() {
-    if (!global.gameManager.over) {
+    if (!global.gameManager.over && running) {
       step();
-      setTimeout(loop, 500);
+      setTimeout(loop, 100);
     }
   }
 
-  $('.auto-button').on('click', function(e) {
-    // while(!global.gameManager.over) {
-    //   step();
-    //   sleep(1);
-    // }
-    loop();
-  });
-
-  document.addEventListener("2048.moved", function(e) {
-    queue.shift('done');
-  })
-
+  setup();
 })(window);
